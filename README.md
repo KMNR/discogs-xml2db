@@ -76,7 +76,7 @@ Steps to import the data-dumps into PostgreSQL:
 
 1. Unzip the dumps to the source directory: `gunzip discogs_20140501_*.xml.gz`
 2. Login as database administrator user if not already, i.e: `sudo su - postgres`
-3. Create an empty discogs database `createdb -U discogs discogs`
+3. Create an empty discogs database `createdb discogs`
 4. Import the database schema: `psql -d discogs -f create_tables.sql`
 6. The XML data dumps often contain control characters and do not have root tags.
    To fix this run `python fix-xml.py release`, where release is the release date of the dump,
