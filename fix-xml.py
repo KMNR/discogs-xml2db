@@ -9,25 +9,22 @@ def clean(filename):
 	# delete any byte that's between 0x00 and 0x1F except 0x09 (tab), 0x0A (LF), and 0x0D (CR).
 	ctrlregex = re.compile(r'[\x01-\x08|\x0B|\x0C|\x0E-\x1F]')
 
-	try:
-		os.rename(filename, "%s.old" % filename)
-	except:
-		print("Did not rename")
+	new_filename = "{}.old".format(filename)
+	os.rename(filename, new_filename)
 
-	with nested(open(filename, "wb"), open(filename + ".old", "rb")) as (destination, source):
+	with open(filename, "wb") as destination:
+		with open(new_filename, "rb") as source:
 
-		counter = 0
-		for line in source:
-			rObj = re.search(ctrlregex, line)
-			counter += 1
-			if rObj is not None:
-				print(counter)
-				newLine = re.sub(ctrlregex, '', line)
-				destination.write(newLine)
-			else:
-				destination.write(line)
+			for counter, line in enumerate(source, 1):
+				rObj = re.search(ctrlregex, line)
+				if rObj is not None:
+					print(counter)
+					newLine = re.sub(ctrlregex, '', line)
+					destination.write(newLine)
+				else:
+					destination.write(line)
 
-	os.remove("%s.old" % filename)
+	os.remove(new_filename)
 
 
 def usage():
@@ -51,17 +48,12 @@ def main(argv):
 
 	release = argv[0]
 
-	filename = path + 'discogs_%s_labels.xml' % release
-	clean(filename)
+	for data_type in ['labels', 'releases', 'masters', 'artists']:
+		filename = os.path.join(path, 'discogs_{}_{}.xml'.format(release,
+                                                                 data_type))
+		clean(filename)
 
-	filename = path + 'discogs_%s_releases.xml' % release
-	clean(filename)
-
-	filename = path + 'discogs_%s_masters.xml' % release
-	clean(filename)
-
-	filename = path + 'discogs_%s_artists.xml' % release
-	clean(filename)
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
+
